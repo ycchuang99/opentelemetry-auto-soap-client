@@ -11,5 +11,5 @@ Auto-instrumentation hooks are registered via composer, and spans will automatic
 The extension can be disabled via [runtime configuration](https://opentelemetry.io/docs/instrumentation/php/sdk/#configuration):
 
 ```shell
-OTEL_PHP_DISABLED_INSTRUMENTATIONS=soap
+OTEL_PHP_DISABLED_INSTRUMENTATIONS=soap-client
 ```

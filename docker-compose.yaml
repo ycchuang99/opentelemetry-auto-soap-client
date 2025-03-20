@@ -1,0 +1,14 @@
+services:
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - PHP_VERSION
+    volumes:
+    - ./:/usr/src/myapp
+    user: "${PHP_USER}:root"
+    environment:
+      XDEBUG_MODE: ${XDEBUG_MODE:-off}
+      XDEBUG_CONFIG: ${XDEBUG_CONFIG:-''}
+      PHP_IDE_CONFIG: ${PHP_IDE_CONFIG:-''}
