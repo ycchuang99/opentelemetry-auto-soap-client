@@ -51,9 +51,9 @@ class SoapClientInstrumentation
                 if (!$scope) {
                     return;
                 }
-                $span = Span::fromContext($scope->context());
 
-                $span->setAttribute(TraceAttributes::HTTP_RESPONSE_STATUS_CODE, $result->getStatusCode())
+                Span::fromContext($scope->context())
+                    ->setAttribute(TraceAttributes::HTTP_RESPONSE_STATUS_CODE, $result->getStatusCode())
                     ->setAttribute(TraceAttributes::HTTP_RESPONSE_BODY_SIZE, strlen($result->getBody()));
                 
                 self::end($exception);
