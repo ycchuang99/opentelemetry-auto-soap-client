@@ -60,7 +60,7 @@ class SoapClientInstrumentation
                     $span->recordException($exception);
                     $span->setStatus(StatusCode::STATUS_ERROR, $exception->getMessage());
                 }
-
+                
                 $scope->detach();
                 $span->end();
             },

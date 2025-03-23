@@ -45,6 +45,7 @@ class SoapClientInstrumentationIntegrationTest extends TestCase
         $options = [
             'trace' => true,
             'exceptions' => true,
+            'soap_version' => SOAP_1_2,
         ];
         
         $client = new SoapClient(self::WSDL_URL_WITH_QUERY, $options);
@@ -60,6 +61,7 @@ class SoapClientInstrumentationIntegrationTest extends TestCase
         
         $this->assertEquals(StatusCode::STATUS_OK, $span->getStatus()->getCode());
         $this->assertEquals(self::WSDL_URL, $span->getAttributes()->get(TraceAttributes::URL_FULL));
+        $this->assertEquals(SOAP_1_2, $span->getAttributes()->get(TraceAttributes::SERVICE_VERSION));
     }
 
     public function tearDown(): void
