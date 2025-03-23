@@ -52,13 +52,16 @@ class SoapClientInstrumentation
                     return;
                 }
                 
-                $scope->detach();
-                $span = Span::fromContext($scope->context());
+                $span = Span::fromContext($scope->context())
+                    ->setAttribute(TraceAttributes::HTTP_RESPONSE_SIZE, strlen($result))
+                    ->setStatus(StatusCode::STATUS_OK);
+
                 if ($exception) {
                     $span->recordException($exception);
                     $span->setStatus(StatusCode::STATUS_ERROR, $exception->getMessage());
                 }
 
+                $scope->detach();
                 $span->end();
             },
         );
