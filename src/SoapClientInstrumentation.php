@@ -51,29 +51,16 @@ class SoapClientInstrumentation
                 if (!$scope) {
                     return;
                 }
-
-                Span::fromContext($scope->context())
-                    ->setAttribute(TraceAttributes::HTTP_RESPONSE_STATUS_CODE, $result->getStatusCode())
-                    ->setAttribute(TraceAttributes::HTTP_RESPONSE_BODY_SIZE, strlen($result->getBody()));
                 
-                self::end($exception);
+                $scope->detach();
+                $span = Span::fromContext($scope->context());
+                if ($exception) {
+                    $span->recordException($exception);
+                    $span->setStatus(StatusCode::STATUS_ERROR, $exception->getMessage());
+                }
+
+                $span->end();
             },
         );
-    }
-
-    private static function end(?Throwable $exception): void
-    {
-        $scope = Context::storage()->scope();
-        if (!$scope) {
-            return;
-        }
-        $scope->detach();
-        $span = Span::fromContext($scope->context());
-        if ($exception) {
-            $span->recordException($exception);
-            $span->setStatus(StatusCode::STATUS_ERROR, $exception->getMessage());
-        }
-
-        $span->end();
     }
 }
