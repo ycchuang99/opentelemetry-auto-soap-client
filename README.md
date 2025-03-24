@@ -4,7 +4,14 @@ Please read https://opentelemetry.io/docs/instrumentation/php/automatic/ for ins
 install and configure the extension and SDK.
 
 ## Overview
+
 Auto-instrumentation hooks are registered via composer, and spans will automatically be created.
+
+## Installation
+
+```shell
+composer require ycchuang99/opentelemetry-instrumentation-soap
+```
 
 ## Configuration
 
