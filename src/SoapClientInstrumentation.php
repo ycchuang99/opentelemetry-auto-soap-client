@@ -59,7 +59,6 @@ class SoapClientInstrumentation
                 }
                 
                 $span = Span::fromContext($scope->context())
-                    ->setAttribute(TraceAttributes::HTTP_RESPONSE_STATUS_CODE, $soapClient->__getLastResponseCode())
                     ->setAttribute(TraceAttributes::HTTP_RESPONSE_HEADER, $soapClient->__getLastResponseHeaders())
                     ->setStatus(StatusCode::STATUS_OK);
                 

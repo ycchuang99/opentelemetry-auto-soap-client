@@ -9,10 +9,10 @@ use OpenTelemetry\API\Instrumentation\Configurator;
 use OpenTelemetry\API\Trace\SpanKind;
 use OpenTelemetry\API\Trace\StatusCode;
 use OpenTelemetry\Context\ScopeInterface;
+use OpenTelemetry\Contrib\Instrumentation\SoapClient\SoapClientAttributes;
 use OpenTelemetry\SDK\Trace\SpanExporter\InMemoryExporter;
 use OpenTelemetry\SDK\Trace\SpanProcessor\SimpleSpanProcessor;
 use OpenTelemetry\SDK\Trace\TracerProvider;
-use OpenTelemetry\SemConv\TraceAttributes;
 use PHPUnit\Framework\TestCase;
 use SoapClient;
 
@@ -56,12 +56,11 @@ class SoapClientInstrumentationIntegrationTest extends TestCase
         $span = $this->storage->offsetGet(0);
         
         $this->assertEquals(SpanKind::KIND_CLIENT, $span->getKind());
-        $this->assertNotNull($span->getAttributes()->get(TraceAttributes::URL_FULL));
-        $this->assertNotNull($span->getAttributes()->get(TraceAttributes::HTTP_REQUEST_SIZE));
         
         $this->assertEquals(StatusCode::STATUS_OK, $span->getStatus()->getCode());
-        $this->assertEquals(self::WSDL_URL, $span->getAttributes()->get(TraceAttributes::URL_FULL));
-        $this->assertEquals(SOAP_1_2, $span->getAttributes()->get(TraceAttributes::SERVICE_VERSION));
+        $this->assertEquals(self::WSDL_URL, $span->getAttributes()->get(SoapClientAttributes::SOAP_LOCATION));
+        $this->assertEquals(SOAP_1_2, $span->getAttributes()->get(SoapClientAttributes::SOAP_VERSION));
+
     }
 
     public function tearDown(): void

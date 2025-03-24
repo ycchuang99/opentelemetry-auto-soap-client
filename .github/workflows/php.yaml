@@ -1,0 +1,71 @@
+name: PHP QA
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  php:
+    runs-on: ubuntu-latest
+    continue-on-error: false
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version: [ '8.2', '8.3', '8.4']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          coverage: xdebug
+          extensions: opentelemetry, soap
+
+      - name: Validate composer.json and composer.lock
+        run: composer validate
+
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: ${{ runner.os }}-${{ matrix.php-version }}-php-${{ hashFiles('**/composer.json') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.php-version }}-php-
+
+      - name: Install dependencies
+        if: steps.composer-cache.outputs.cache-hit != 'true'
+        run: |
+          composer config --no-plugins allow-plugins.php-http/discovery false
+          composer install --prefer-dist --no-progress
+
+      - name: Validate Packages composer.json
+        run: composer validate
+
+      - name: Check Style
+        run: PHP_CS_FIXER_IGNORE_ENV=1 vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.php -v --dry-run --stop-on-violation --using-cache=no -vvv
+
+      - name: Run Phan
+        env:
+          PHAN_DISABLE_XDEBUG_WARN: 1
+        run: vendor/bin/phan
+
+      - name: Run Psalm
+        run: vendor/bin/psalm --output-format=github --php-version=${{ matrix.php-version }}
+
+      - name: Run Phpstan
+        run: vendor/bin/phpstan analyse --error-format=github
+      
+      - name: Run PHPUnit
+        run: vendor/bin/phpunit
+
+      - name: Run PHPUnit (coverage)
+        run: vendor/bin/phpunit --testsuite integration,unit --coverage-text --coverage-clover=coverage.clover
