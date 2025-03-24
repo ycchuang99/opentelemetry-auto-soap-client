@@ -50,7 +50,7 @@ class SoapClientInstrumentationIntegrationTest extends TestCase
         
         $client = new SoapClient(self::WSDL_URL_WITH_QUERY, $options);
         
-        $result = $client->ListOfCountryNamesByName();
+        $client->ListOfCountryNamesByName();
         
         $this->assertCount(1, $this->storage);
         $span = $this->storage->offsetGet(0);

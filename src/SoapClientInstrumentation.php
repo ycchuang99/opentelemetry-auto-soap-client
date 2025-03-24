@@ -12,7 +12,6 @@ use OpenTelemetry\Context\Context;
 use function OpenTelemetry\Instrumentation\hook;
 use OpenTelemetry\SemConv\TraceAttributes;
 use SoapClient;
-
 use Throwable;
 
 class SoapClientInstrumentation
@@ -39,10 +38,17 @@ class SoapClientInstrumentation
                     ->setAttribute(TraceAttributes::CODE_NAMESPACE, $class)
                     ->setAttribute(TraceAttributes::CODE_FILE_PATH, $filename)
                     ->setAttribute(TraceAttributes::CODE_LINE_NUMBER, $lineno)
-                    ->setAttribute(TraceAttributes::HTTP_REQUEST_SIZE, strlen($request))
-                    ->setAttribute(TraceAttributes::URL_FULL, $location)
-                    ->setAttribute(TraceAttributes::SERVICE_VERSION, $version)
+                    ->setAttribute(TraceAttributes::HTTP_REQUEST_BODY_SIZE, strlen($request))
+                    ->setAttribute(SoapClientAttributes::SOAP_LOCATION, $location)
+                    ->setAttribute(SoapClientAttributes::SOAP_ACTION, $action)
+                    ->setAttribute(SoapClientAttributes::SOAP_VERSION, $version)
+                    ->setAttribute(SoapClientAttributes::SOAP_ONE_WAY, $oneWay)
                     ->startSpan();
+                
+                $headers = $soapClient->__getLastRequestHeaders();
+                if ($headers) {
+                    $span->setAttribute(TraceAttributes::HTTP_REQUEST_HEADER, $headers);
+                }
 
                 Context::storage()->attach($span->storeInContext(Context::getCurrent()));
             },
@@ -53,17 +59,34 @@ class SoapClientInstrumentation
                 }
                 
                 $span = Span::fromContext($scope->context())
-                    ->setAttribute(TraceAttributes::HTTP_RESPONSE_SIZE, strlen($result))
+                    ->setAttribute(TraceAttributes::HTTP_RESPONSE_STATUS_CODE, $soapClient->__getLastResponseCode())
+                    ->setAttribute(TraceAttributes::HTTP_RESPONSE_HEADER, $soapClient->__getLastResponseHeaders())
                     ->setStatus(StatusCode::STATUS_OK);
-
-                if ($exception) {
-                    $span->recordException($exception);
-                    $span->setStatus(StatusCode::STATUS_ERROR, $exception->getMessage());
+                
+                if ($result) {
+                    $span->setAttribute(TraceAttributes::HTTP_RESPONSE_BODY_SIZE, strlen($result));
                 }
                 
-                $scope->detach();
-                $span->end();
+                self::endSpan($exception);
             },
         );
+    }
+
+    private static function endSpan(?Throwable $exception): void
+    {
+        $scope = Context::storage()->scope();
+        if (!$scope) {
+            return;
+        }
+
+        $scope->detach();
+        $span = Span::fromContext($scope->context());
+
+        if ($exception) {
+            $span->recordException($exception);
+            $span->setStatus(StatusCode::STATUS_ERROR, $exception->getMessage());
+        }
+
+        $span->end();
     }
 }
