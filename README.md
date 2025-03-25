@@ -10,7 +10,7 @@ Auto-instrumentation hooks are registered via composer, and spans will automatic
 ## Installation
 
 ```shell
-composer require ycchuang99/opentelemetry-instrumentation-soap
+composer require ycchuang99/opentelemetry-auto-soap-client
 ```
 
 ## Configuration
