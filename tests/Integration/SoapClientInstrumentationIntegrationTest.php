@@ -60,7 +60,6 @@ class SoapClientInstrumentationIntegrationTest extends TestCase
         $this->assertEquals(StatusCode::STATUS_OK, $span->getStatus()->getCode());
         $this->assertEquals(self::WSDL_URL, $span->getAttributes()->get(SoapClientAttributes::SOAP_LOCATION));
         $this->assertEquals(SOAP_1_2, $span->getAttributes()->get(SoapClientAttributes::SOAP_VERSION));
-
     }
 
     public function tearDown(): void
