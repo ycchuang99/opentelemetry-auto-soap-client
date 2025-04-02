@@ -6,8 +6,6 @@ namespace OpenTelemetry\Contrib\Instrumentation\SoapClient;
 
 interface SoapClientAttributes
 {
-    public const SOAP_LOCATION = 'soap.location';
-
     public const SOAP_ACTION = 'soap.action';
 
     public const SOAP_VERSION = 'soap.version';
