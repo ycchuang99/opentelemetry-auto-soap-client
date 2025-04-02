@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OpenTelemetry\Tests\Contrib\Instrumentation\SoapClient\Integration;
+namespace Tests\Integration;
 
 use ArrayObject;
 use OpenTelemetry\API\Instrumentation\Configurator;
@@ -13,6 +13,7 @@ use OpenTelemetry\Contrib\Instrumentation\SoapClient\SoapClientAttributes;
 use OpenTelemetry\SDK\Trace\SpanExporter\InMemoryExporter;
 use OpenTelemetry\SDK\Trace\SpanProcessor\SimpleSpanProcessor;
 use OpenTelemetry\SDK\Trace\TracerProvider;
+use OpenTelemetry\SemConv\TraceAttributes;
 use PHPUnit\Framework\TestCase;
 use SoapClient;
 
@@ -57,8 +58,10 @@ class SoapClientInstrumentationIntegrationTest extends TestCase
         
         $this->assertEquals(SpanKind::KIND_CLIENT, $span->getKind());
         
-        $this->assertEquals(StatusCode::STATUS_OK, $span->getStatus()->getCode());
-        $this->assertEquals(self::WSDL_URL, $span->getAttributes()->get(SoapClientAttributes::SOAP_LOCATION));
+        $this->assertEquals(StatusCode::STATUS_UNSET, $span->getStatus()->getCode());
+        $this->assertEquals('http', $span->getAttributes()->get(TraceAttributes::URL_SCHEME));
+        $this->assertEquals('/websamples.countryinfo/CountryInfoService.wso', $span->getAttributes()->get(TraceAttributes::URL_PATH));
+        $this->assertEquals('webservices.oorsprong.org', $span->getAttributes()->get(TraceAttributes::SERVER_ADDRESS));
         $this->assertEquals(SOAP_1_2, $span->getAttributes()->get(SoapClientAttributes::SOAP_VERSION));
     }
 
