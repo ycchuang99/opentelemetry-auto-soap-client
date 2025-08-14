@@ -12,7 +12,7 @@
         "ext-opentelemetry": "*",
         "ext-soap": "*",
         "open-telemetry/api": "^1.0",
-        "open-telemetry/sem-conv": "^1.30"
+        "open-telemetry/sem-conv": "^1.36"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.72",
