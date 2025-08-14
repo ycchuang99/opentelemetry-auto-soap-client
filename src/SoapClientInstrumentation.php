@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace OpenTelemetry\Contrib\Instrumentation\SoapClient;
 
+use Composer\InstalledVersions;
 use OpenTelemetry\API\Instrumentation\CachedInstrumentation;
 use OpenTelemetry\API\Trace\Span;
 use OpenTelemetry\API\Trace\SpanKind;
@@ -16,6 +17,7 @@ use OpenTelemetry\SemConv\Attributes\ServerAttributes;
 use OpenTelemetry\SemConv\Attributes\UrlAttributes;
 use OpenTelemetry\SemConv\Incubating\Attributes\HttpIncubatingAttributes;
 use OpenTelemetry\SemConv\TraceAttributes;
+use OpenTelemetry\SemConv\Version;
 use SoapClient;
 
 use Throwable;
@@ -28,8 +30,8 @@ class SoapClientInstrumentation
     {
         $instrumentation = new CachedInstrumentation(
             'io.opentelemetry.contrib.php.soap-client',
-            null,
-            'https://opentelemetry.io/schemas/1.32.0',
+            InstalledVersions::getVersion('ycchuang99/opentelemetry-auto-soap-client'),
+            Version::VERSION_1_36_0->url(),
         );
 
         hook(
@@ -39,7 +41,7 @@ class SoapClientInstrumentation
                 [$request, $location, $action, $version, $oneWay] = array_pad($params, 5, '');
                 $url = parse_url($location);
 
-                $span = $instrumentation->tracer()->spanBuilder(sprintf('%s::%s', $class, $function))
+                $span = $instrumentation->tracer()->spanBuilder(sprintf('soap client %s', $function))
                     ->setSpanKind(SpanKind::KIND_CLIENT)
                     ->setAttribute(CodeAttributes::CODE_FUNCTION_NAME, sprintf('%s::%s', $class, $function))
                     ->setAttribute(CodeAttributes::CODE_FILE_PATH, $filename)
