@@ -7,6 +7,7 @@
     "license": "Apache-2.0",
     "minimum-stability": "dev",
     "prefer-stable": true,
+    "homepage": "https://github.com/ycchuang99/opentelemetry-auto-soap-client",
     "require": {
         "php": "^8.2",
         "ext-opentelemetry": "*",
