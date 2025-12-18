@@ -13,6 +13,7 @@ use OpenTelemetry\Contrib\Instrumentation\SoapClient\SoapClientAttributes;
 use OpenTelemetry\SDK\Trace\SpanExporter\InMemoryExporter;
 use OpenTelemetry\SDK\Trace\SpanProcessor\SimpleSpanProcessor;
 use OpenTelemetry\SDK\Trace\TracerProvider;
+use OpenTelemetry\SemConv\Attributes\HttpAttributes;
 use OpenTelemetry\SemConv\Attributes\ServerAttributes;
 use OpenTelemetry\SemConv\Attributes\UrlAttributes;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -70,6 +71,7 @@ class SoapClientInstrumentationIntegrationTest extends TestCase
         $this->assertEquals('/websamples.countryinfo/CountryInfoService.wso', $span->getAttributes()->get(UrlAttributes::URL_PATH));
         $this->assertEquals('webservices.oorsprong.org', $span->getAttributes()->get(ServerAttributes::SERVER_ADDRESS));
         $this->assertEquals(SOAP_1_2, $span->getAttributes()->get(SoapClientAttributes::SOAP_VERSION));
+        $this->assertEquals("Content-Type: application/soap+xml; charset=utf-8\nContent-Length: 1234\n", $span->getAttributes()->get(HttpAttributes::HTTP_REQUEST_HEADER));
     }
 
     public function tearDown(): void
