@@ -25,7 +25,7 @@ class SoapClientInstrumentationIntegrationTest extends TestCase
     
     private ArrayObject $storage;
 
-    private MockObject $client;
+    private MockObject&SoapClient $client;
     
     private const WSDL_URL = 'http://webservices.oorsprong.org/websamples.countryinfo/CountryInfoService.wso';
 
@@ -56,10 +56,6 @@ class SoapClientInstrumentationIntegrationTest extends TestCase
 
     public function testSoapClientDoRequest(): void
     {
-        /**
-         * @psalm-suppress UndefinedMethod
-         * @phpstan-ignore-next-line
-         */
         $this->client->ListOfCountryNamesByName();
         
         $this->assertCount(1, $this->storage);
