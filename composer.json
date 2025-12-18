@@ -2,7 +2,13 @@
     "name": "ycchuang99/opentelemetry-auto-soap-client",
     "description": "OpenTelemetry Auto Instrumentation for SOAP Client",
     "type": "library",
-    "keywords": ["opentelemetry", "otel", "open-telemetry", "soap", "instrumentation"],
+    "keywords": [
+        "opentelemetry",
+        "otel",
+        "open-telemetry",
+        "soap",
+        "instrumentation"
+    ],
     "readme": "README.md",
     "license": "Apache-2.0",
     "minimum-stability": "dev",
@@ -13,7 +19,7 @@
         "ext-opentelemetry": "*",
         "ext-soap": "*",
         "open-telemetry/api": "^1.0",
-        "open-telemetry/sem-conv": "^1.36"
+        "open-telemetry/sem-conv": "^1.37"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.72",
@@ -23,7 +29,7 @@
         "phpstan/phpstan-phpunit": "^2.0",
         "psalm/plugin-phpunit": "^0.19.2",
         "open-telemetry/sdk": "^1.0",
-        "phpunit/phpunit": "^9.5",
+        "phpunit/phpunit": "^9.6",
         "vimeo/psalm": "6.4.0"
     },
     "autoload": {
@@ -43,7 +49,7 @@
         "lock": false,
         "sort-packages": true,
         "allow-plugins": {
-          "php-http/discovery": false
+            "php-http/discovery": false
         }
     }
 }

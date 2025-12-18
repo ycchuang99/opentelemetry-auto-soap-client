@@ -13,10 +13,10 @@ use OpenTelemetry\Context\Context;
 use function OpenTelemetry\Instrumentation\hook;
 use OpenTelemetry\SemConv\Attributes\CodeAttributes;
 use OpenTelemetry\SemConv\Attributes\HttpAttributes;
+use OpenTelemetry\SemConv\Attributes\NetworkAttributes;
 use OpenTelemetry\SemConv\Attributes\ServerAttributes;
 use OpenTelemetry\SemConv\Attributes\UrlAttributes;
 use OpenTelemetry\SemConv\Incubating\Attributes\HttpIncubatingAttributes;
-use OpenTelemetry\SemConv\TraceAttributes;
 use OpenTelemetry\SemConv\Version;
 use SoapClient;
 
@@ -74,7 +74,7 @@ class SoapClientInstrumentation
                 $span = Span::fromContext($scope->context());
                 
                 if ($responseHeaders) {
-                    $span->setAttribute(TraceAttributes::NETWORK_PROTOCOL_VERSION, self::extractHttpVersion($responseHeaders))
+                    $span->setAttribute(NetworkAttributes::NETWORK_PROTOCOL_VERSION, self::extractHttpVersion($responseHeaders))
                         ->setAttribute(HttpAttributes::HTTP_RESPONSE_STATUS_CODE, self::extractHttpStatusCode($responseHeaders));
                 }
                 
