@@ -9,6 +9,11 @@ use PHPUnit\Framework\TestCase;
 
 class SoapClientInstrumentationTest extends TestCase
 {
+    #[\Override]
+    protected function setUp(): void
+    {
+    }
+
     public function testExtractHttpVersion(): void
     {
         $header = '

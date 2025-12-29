@@ -32,6 +32,7 @@ class SoapClientInstrumentationTest extends TestCase
 
     private const WSDL_URL_WITH_QUERY = self::WSDL_URL . '?WSDL';
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->storage = new ArrayObject();
@@ -74,6 +75,7 @@ class SoapClientInstrumentationTest extends TestCase
         $this->assertEquals("Content-Type: application/soap+xml; charset=utf-8\nContent-Length: 1234\n", $span->getAttributes()->get(HttpAttributes::HTTP_REQUEST_HEADER));
     }
 
+    #[\Override]
     public function tearDown(): void
     {
         $this->scope->detach();

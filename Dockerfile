@@ -5,7 +5,7 @@ ARG PHP_VERSION=8.2
 
 USER root
 
-RUN apt-get install -y \
+RUN apt-get update && apt-get install -y \
     libxml2-dev \
     php${PHP_VERSION}-soap
 
