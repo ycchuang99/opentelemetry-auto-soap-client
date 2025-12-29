@@ -20,7 +20,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use SoapClient;
 
-class SoapClientInstrumentationIntegrationTest extends TestCase
+class SoapClientInstrumentationTest extends TestCase
 {
     private ScopeInterface $scope;
 
