@@ -23,14 +23,13 @@
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.72",
-        "phan/phan": "^5.0",
         "php-http/mock-client": "*",
         "phpstan/phpstan": "^2.0",
         "phpstan/phpstan-phpunit": "^2.0",
         "psalm/plugin-phpunit": "^0.19.2",
         "open-telemetry/sdk": "^1.0",
         "phpunit/phpunit": "^9.6",
-        "vimeo/psalm": "6.4.0"
+        "vimeo/psalm": "^6.16"
     },
     "autoload": {
         "psr-4": {
@@ -49,7 +48,8 @@
         "lock": false,
         "sort-packages": true,
         "allow-plugins": {
-            "php-http/discovery": false
+            "php-http/discovery": false,
+            "tbachert/spi": false
         }
     }
 }
