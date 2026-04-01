@@ -68,7 +68,7 @@ jobs:
         run: vendor/bin/phpunit --testsuite integration,unit --coverage-text --coverage-clover=coverage.clover
 
       - name: Code Coverage
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         # only generate coverage against the latest PHP version
         if: ${{ matrix.php-version == '8.5' }}
         with:
