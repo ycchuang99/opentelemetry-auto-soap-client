@@ -31,7 +31,7 @@ class SoapClientInstrumentation
         $instrumentation = new CachedInstrumentation(
             'io.opentelemetry.contrib.php.soap-client',
             InstalledVersions::getVersion('ycchuang99/opentelemetry-auto-soap-client'),
-            Version::VERSION_1_36_0->url(),
+            Version::VERSION_1_37_0->url(),
         );
 
         hook(
