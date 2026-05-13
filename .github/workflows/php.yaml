@@ -19,7 +19,22 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-version: ["8.2", "8.3", "8.4", "8.5"]
+        include:
+          - php-version: "8.2"
+            dependency-mode: stable
+            collect-coverage: false
+          - php-version: "8.2"
+            dependency-mode: lowest
+            collect-coverage: false
+          - php-version: "8.3"
+            dependency-mode: stable
+            collect-coverage: false
+          - php-version: "8.4"
+            dependency-mode: stable
+            collect-coverage: false
+          - php-version: "8.5"
+            dependency-mode: stable
+            collect-coverage: true
 
     steps:
       - uses: actions/checkout@v6
@@ -31,26 +46,29 @@ jobs:
           coverage: xdebug
           extensions: opentelemetry, soap
 
-      - name: Validate composer.json and composer.lock
-        run: composer validate
+      - name: Validate composer.json
+        run: composer validate --no-plugins
 
       - name: Cache Composer packages
         id: composer-cache
         uses: actions/cache@v5
         with:
           path: vendor
-          key: ${{ runner.os }}-${{ matrix.php-version }}-php-${{ hashFiles('**/composer.json') }}
+          key: ${{ runner.os }}-${{ matrix.php-version }}-${{ matrix.dependency-mode }}-php-${{ hashFiles('**/composer.json') }}
           restore-keys: |
-            ${{ runner.os }}-${{ matrix.php-version }}-php-
+            ${{ runner.os }}-${{ matrix.php-version }}-${{ matrix.dependency-mode }}-php-
 
       - name: Install dependencies
-        if: steps.composer-cache.outputs.cache-hit != 'true'
+        if: steps.composer-cache.outputs.cache-hit != 'true' && matrix.dependency-mode == 'stable'
         run: |
           composer config --no-plugins allow-plugins.php-http/discovery false
           composer install --prefer-dist --no-progress
 
-      - name: Validate Packages composer.json
-        run: composer validate
+      - name: Install lowest dependencies
+        if: steps.composer-cache.outputs.cache-hit != 'true' && matrix.dependency-mode == 'lowest'
+        run: |
+          composer config --no-plugins allow-plugins.php-http/discovery false
+          composer update --no-plugins --prefer-lowest --prefer-dist --no-progress
 
       - name: Check Style
         run: PHP_CS_FIXER_IGNORE_ENV=1 vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.php -v --dry-run --stop-on-violation --using-cache=no -vvv
@@ -62,15 +80,16 @@ jobs:
         run: vendor/bin/phpstan analyse --error-format=github
 
       - name: Run PHPUnit
-        run: vendor/bin/phpunit
-
-      - name: Run PHPUnit (coverage)
-        run: vendor/bin/phpunit --testsuite integration,unit --coverage-text --coverage-clover=coverage.clover
+        run: |
+          if [ "${{ matrix.collect-coverage }}" = 'true' ]; then
+            vendor/bin/phpunit --testsuite integration,unit --coverage-text --coverage-clover=coverage.clover
+          else
+            vendor/bin/phpunit
+          fi
 
       - name: Code Coverage
         uses: codecov/codecov-action@v6
-        # only generate coverage against the latest PHP version
-        if: ${{ matrix.php-version == '8.5' }}
+        if: ${{ matrix.collect-coverage }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.clover
