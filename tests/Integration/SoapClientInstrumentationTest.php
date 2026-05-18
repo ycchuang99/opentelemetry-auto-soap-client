@@ -163,8 +163,8 @@ class SoapClientInstrumentationTest extends TestCase
             'cache_wsdl' => WSDL_CACHE_NONE,
         ]);
 
-        $client->__soapCall('ListOfCountryNamesByName', []);
-        $client->__soapCall('CapitalCity', [['sCountryISOCode' => 'US']]);
+        $client->ListOfCountryNamesByName();
+        $client->CapitalCity(['sCountryISOCode' => 'US']);
 
         $this->assertCount(2, $this->storage);
         $this->assertNull($client->requestHeadersSeenAtDoRequestStart[0]);
@@ -211,6 +211,10 @@ class SoapClientInstrumentationTest extends TestCase
     }
 }
 
+/**
+ * @method mixed ListOfCountryNamesByName()
+ * @method mixed CapitalCity(array $request)
+ */
 class RealRequestHeaderProbeSoapClient extends SoapClient
 {
     /** @var list<?string> */
@@ -222,6 +226,6 @@ class RealRequestHeaderProbeSoapClient extends SoapClient
         $this->requestHeadersSeenAtDoRequestStart[] = $this->__getLastRequestHeaders();
 
         /** @psalm-suppress TooManyArguments */
-        return parent::__doRequest($request, $location, $action, $version, $oneWay, $uriParserClass);
+        return parent::__doRequest($request, $location, $action, $version, $oneWay, $uriParserClass); // @phpstan-ignore-line
     }
 }
