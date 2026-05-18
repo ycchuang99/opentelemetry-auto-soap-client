@@ -25,7 +25,7 @@ use SoapFault;
 
 class SoapClientInstrumentationTest extends TestCase
 {
-    private ScopeInterface $scope;
+    private ?ScopeInterface $scope = null;
 
     /** @var ArrayObject<int, ImmutableSpan> */
     private ArrayObject $storage;
@@ -65,7 +65,7 @@ class SoapClientInstrumentationTest extends TestCase
         $client->method('__getLastResponseHeaders')
             ->willReturn(self::RESPONSE_HEADERS);
 
-        $client->ListOfCountryNamesByName();
+        $client->__soapCall('ListOfCountryNamesByName', []);
 
         $this->assertCount(1, $this->storage);
         $span = $this->spanAt(0);
@@ -92,7 +92,7 @@ class SoapClientInstrumentationTest extends TestCase
             ->willReturn('');
 
         try {
-            $client->ListOfCountryNamesByName();
+            $client->__soapCall('ListOfCountryNamesByName', []);
             $this->fail('Expected SOAP fault to be thrown.');
         } catch (SoapFault $exception) {
             $this->assertSame('SOAP transport failed', $exception->getMessage());
@@ -106,8 +106,10 @@ class SoapClientInstrumentationTest extends TestCase
         $this->assertEquals(self::REQUEST_HEADERS, $span->getAttributes()->get(HttpAttributes::HTTP_REQUEST_HEADER));
         $this->assertNotEmpty($events);
         $this->assertSame('exception', $events[0]->getName());
-        $this->assertSame('SoapFault', $events[0]->getAttributes()['exception.type']);
-        $this->assertSame('SOAP transport failed', $events[0]->getAttributes()['exception.message']);
+        $eventAttributes = $events[0]->getAttributes()->toArray();
+
+        $this->assertSame('SoapFault', $eventAttributes['exception.type'] ?? null);
+        $this->assertSame('SOAP transport failed', $eventAttributes['exception.message'] ?? null);
     }
 
     public function testSoapClientDoRequestHandlesMissingHeadersSafely(): void
@@ -120,7 +122,7 @@ class SoapClientInstrumentationTest extends TestCase
         $client->method('__getLastResponseHeaders')
             ->willReturn('');
 
-        $client->ListOfCountryNamesByName();
+        $client->__soapCall('ListOfCountryNamesByName', []);
 
         $this->assertCount(1, $this->storage);
         $span = $this->spanAt(0);
@@ -161,8 +163,8 @@ class SoapClientInstrumentationTest extends TestCase
             'cache_wsdl' => WSDL_CACHE_NONE,
         ]);
 
-        $client->ListOfCountryNamesByName();
-        $client->CapitalCity(['sCountryISOCode' => 'US']);
+        $client->__soapCall('ListOfCountryNamesByName', []);
+        $client->__soapCall('CapitalCity', [['sCountryISOCode' => 'US']]);
 
         $this->assertCount(2, $this->storage);
         $this->assertNull($client->requestHeadersSeenAtDoRequestStart[0]);
@@ -178,7 +180,7 @@ class SoapClientInstrumentationTest extends TestCase
     #[\Override]
     public function tearDown(): void
     {
-        if (isset($this->scope)) {
+        if ($this->scope instanceof ScopeInterface) {
             $this->scope->detach();
         }
     }
@@ -214,10 +216,12 @@ class RealRequestHeaderProbeSoapClient extends SoapClient
     /** @var list<?string> */
     public array $requestHeadersSeenAtDoRequestStart = [];
 
+    #[\Override]
     public function __doRequest(string $request, string $location, string $action, int $version, bool $oneWay = false, ?string $uriParserClass = null): ?string
     {
         $this->requestHeadersSeenAtDoRequestStart[] = $this->__getLastRequestHeaders();
 
+        /** @psalm-suppress TooManyArguments */
         return parent::__doRequest($request, $location, $action, $version, $oneWay, $uriParserClass);
     }
 }
