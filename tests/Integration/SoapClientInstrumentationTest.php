@@ -225,7 +225,11 @@ class RealRequestHeaderProbeSoapClient extends SoapClient
     {
         $this->requestHeadersSeenAtDoRequestStart[] = $this->__getLastRequestHeaders();
 
-        /** @psalm-suppress TooManyArguments */
-        return parent::__doRequest($request, $location, $action, $version, $oneWay, $uriParserClass); // @phpstan-ignore-line
+        if (PHP_VERSION_ID >= 80500) {
+            /** @psalm-suppress TooManyArguments */
+            return parent::__doRequest($request, $location, $action, $version, $oneWay, $uriParserClass);
+        }
+
+        return parent::__doRequest($request, $location, $action, $version, $oneWay);
     }
 }
