@@ -57,11 +57,6 @@ class SoapClientInstrumentation
                     ->setAttribute(SoapClientAttributes::SOAP_ONE_WAY, $oneWay)
                     ->startSpan();
                 
-                $headers = $soapClient->__getLastRequestHeaders();
-                if ($headers) {
-                    $span->setAttribute(HttpAttributes::HTTP_REQUEST_HEADER, $headers);
-                }
-
                 Context::storage()->attach($span->storeInContext(Context::getCurrent()));
             },
             post: function (SoapClient $soapClient, array $params, mixed $result, ?Throwable $exception) {
@@ -69,19 +64,24 @@ class SoapClientInstrumentation
                 if (!$scope) {
                     return;
                 }
-                
+
+                $requestHeaders = $soapClient->__getLastRequestHeaders();
                 $responseHeaders = $soapClient->__getLastResponseHeaders();
                 $span = Span::fromContext($scope->context());
-                
+
+                if ($requestHeaders) {
+                    $span->setAttribute(HttpAttributes::HTTP_REQUEST_HEADER, $requestHeaders);
+                }
+
                 if ($responseHeaders) {
                     $span->setAttribute(NetworkAttributes::NETWORK_PROTOCOL_VERSION, self::extractHttpVersion($responseHeaders))
                         ->setAttribute(HttpAttributes::HTTP_RESPONSE_STATUS_CODE, self::extractHttpStatusCode($responseHeaders));
                 }
-                
+
                 if ($result) {
                     $span->setAttribute(HttpIncubatingAttributes::HTTP_RESPONSE_BODY_SIZE, strlen($result));
                 }
-                
+
                 self::endSpan($exception);
             },
         );
